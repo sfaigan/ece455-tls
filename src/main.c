@@ -137,6 +137,7 @@ functionality.
 /* Standard includes. */
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "stm32f4_discovery.h"
 /* Kernel includes. */
 #include "stm32f4xx.h"
@@ -145,22 +146,28 @@ functionality.
 #include "../FreeRTOS_Source/include/semphr.h"
 #include "../FreeRTOS_Source/include/task.h"
 #include "../FreeRTOS_Source/include/timers.h"
-
+#include "shift_register.h"
 
 
 /*-----------------------------------------------------------*/
-#define mainQUEUE_LENGTH 100
+#define mainQUEUE_LENGTH 5
 
-#define amber  	0
-#define green  	1
-#define red  	2
-#define blue  	3
+#define RED 0
+#define AMBER 1
+#define GREEN 2
+#define NO_CHANGE 3
 
-#define amber_led	LED3
-#define green_led	LED4
-#define red_led		LED5
-#define blue_led	LED6
+#define RED_LIGHT_PIN GPIO_Pin_0
+#define AMBER_LIGHT_PIN GPIO_Pin_1
+#define GREEN_LIGHT_PIN GPIO_Pin_2
 
+#define LANE_CAPACITY 19
+
+#define RED_LIGHT_TIME 5000
+#define AMBER_LIGHT_TIME 3000
+#define GREEN_LIGHT_TIME 10000
+
+#define POTENTIOMETER_PIN GPIO_Pin_3
 
 /*
  * TODO: Implement this function for any hardware specific clock configuration
@@ -172,11 +179,13 @@ static void prvSetupHardware( void );
  * The queue send and receive tasks as described in the comments at the top of
  * this file.
  */
+/*
 static void Manager_Task( void *pvParameters );
 static void Blue_LED_Controller_Task( void *pvParameters );
 static void Green_LED_Controller_Task( void *pvParameters );
 static void Red_LED_Controller_Task( void *pvParameters );
 static void Amber_LED_Controller_Task( void *pvParameters );
+*/
 
 xQueueHandle xQueue_handle = 0;
 
@@ -187,15 +196,29 @@ int main(void)
 {
 
 	/* Initialize LEDs */
+	/*
 	STM_EVAL_LEDInit(amber_led);
 	STM_EVAL_LEDInit(green_led);
 	STM_EVAL_LEDInit(red_led);
 	STM_EVAL_LEDInit(blue_led);
+	*/
 
 	/* Configure the system ready to run the demo.  The clock configuration
 	can be done here if it was not done before main() was called. */
 	prvSetupHardware();
 
+	// before traffic generator
+	uint32_t traffic = 0b00000000000000010101010101010101;
+
+	set_shift_register(traffic, LANE_CAPACITY);
+
+	// traffic generator adds new car
+	traffic |= 0b00000000000010000000000000000000;
+
+	// traffic flow task shifts cars
+	traffic >>= 1;
+
+	set_shift_register(traffic, LANE_CAPACITY);
 
 	/* Create the queue used by the queue send and queue receive tasks.
 	http://www.freertos.org/a00116.html */
@@ -205,21 +228,21 @@ int main(void)
 	/* Add to the registry, for the benefit of kernel aware debugging. */
 	vQueueAddToRegistry( xQueue_handle, "MainQueue" );
 
+	/*
 	xTaskCreate( Manager_Task, "Manager", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
 	xTaskCreate( Blue_LED_Controller_Task, "Blue_LED", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
 	xTaskCreate( Red_LED_Controller_Task, "Red_LED", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
 	xTaskCreate( Green_LED_Controller_Task, "Green_LED", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
 	xTaskCreate( Amber_LED_Controller_Task, "Amber_LED", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+	*/
 
 	/* Start the tasks and timer running. */
-	vTaskStartScheduler();
+	// vTaskStartScheduler();
 
 	return 0;
 }
 
-
-/*-----------------------------------------------------------*/
-
+/*
 static void Manager_Task( void *pvParameters )
 {
 	uint16_t tx_data = amber;
@@ -251,8 +274,6 @@ static void Manager_Task( void *pvParameters )
 	}
 }
 
-/*-----------------------------------------------------------*/
-
 static void Blue_LED_Controller_Task( void *pvParameters )
 {
 	uint16_t rx_data;
@@ -277,9 +298,6 @@ static void Blue_LED_Controller_Task( void *pvParameters )
 		}
 	}
 }
-
-
-/*-----------------------------------------------------------*/
 
 static void Green_LED_Controller_Task( void *pvParameters )
 {
@@ -306,8 +324,6 @@ static void Green_LED_Controller_Task( void *pvParameters )
 	}
 }
 
-/*-----------------------------------------------------------*/
-
 static void Red_LED_Controller_Task( void *pvParameters )
 {
 	uint16_t rx_data;
@@ -333,9 +349,6 @@ static void Red_LED_Controller_Task( void *pvParameters )
 	}
 }
 
-
-/*-----------------------------------------------------------*/
-
 static void Amber_LED_Controller_Task( void *pvParameters )
 {
 	uint16_t rx_data;
@@ -360,9 +373,7 @@ static void Amber_LED_Controller_Task( void *pvParameters )
 		}
 	}
 }
-
-
-/*-----------------------------------------------------------*/
+*/
 
 void vApplicationMallocFailedHook( void )
 {
@@ -422,5 +433,6 @@ static void prvSetupHardware( void )
 
 	/* TODO: Setup the clocks, etc. here, if they were not configured before
 	main() was called. */
+	initialize_shift_register();
 }
 
