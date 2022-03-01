@@ -147,6 +147,7 @@ functionality.
 #include "../FreeRTOS_Source/include/task.h"
 #include "../FreeRTOS_Source/include/timers.h"
 #include "shift_register.h"
+#include "adc.h"
 
 
 /*-----------------------------------------------------------*/
@@ -431,9 +432,6 @@ static void prvSetupHardware( void )
 	http://www.freertos.org/RTOS-Cortex-M3-M4.html */
 	NVIC_SetPriorityGrouping( 0 );
 
-	// Now handled in this function
-	// initialize_shift_register();
-
 	RCC_AHB1PeriphClockCmd(RCC_AHB1_Periph_GPIOC, ENABLE); // enable port c clock
 
 	// Traffic Light GPIO Initialization
@@ -448,38 +446,10 @@ static void prvSetupHardware( void )
 
 	// Refactor to this hardware setup instead?
 	// Shift Register GPIO Initialization
-	GPIO_InitTypeDef shift_init;
-
-	// Change to constants ! !
-	shift_init.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8;
-	shift_init.GPIO_Mode = GPIO_Mode_Out;
-	shift_init.GPIO_OType = GPIO_OType_PP;
-	shift_init.GPIO_PuPd = GPIO_PuPd_NOPULL; // Could change to pull down?
-	shift_init.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOC, &shift_init);
+	initialize_shift_register();
 
 	// ADC Initialization
-	ADC_InitTypeDef ADC_1;
-	GPIO_InitTypeDef ADC_1_GPIO;
-
-	// Update to defined constants ! !
- 	ADC_1_GPIO.GPIO_Pin = POTENTIOMETER_PIN; // analog on pin 3
-	ADC_1_GPIO.GPIO_Mode = GPIO_Mode_AN;
-	ADC_1_GPIO.GPIO_PuPd = GPIO_PuPd_NOPULL;
-
-	RCC_APB2PeriphClockCmd(RCC_AHB2_Periph_ADC1, ENABLE); // enable adc clock
-
-	ADC_1.ADC_Resolution = ADC_Resolution_12b;	// 12bit
-	ADC_1.ADC_ScanConvMode = DISABLE;
-	ADC_1.ADC_ContinuousConvMode = ENABLE;
-	ADC_1.ADC_ExternalTrigConv = DISABLE;
-	ADC_1.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
-	ADC_1.ADC_DataAlign = ADC_DataAlign_Right;	// right align of ADC data
-	ADC_1.ADC_NbrOfConversion = 1;               // one conversion at a time
-	ADC_init(ADC1, &ADC_InitStructure);
-
-    ADC_Cmd(ADC1, ENABLE );
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_11 , 1, ADC_SampleTime_84Cycles);
+	initialize_adc();
 
 
 }

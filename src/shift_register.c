@@ -7,21 +7,21 @@
 
 #include "shift_register.h"
 
-// Now in prvSetupHardware()
-// void initialize_shift_register() {
-//   GPIO_InitTypeDef  GPIO_InitStructure;
 
-//   /* Enable the GPIO_Shift_Register Clock */
-//   RCC_AHB1PeriphClockCmd(SHIFT_REGISTER_PERIPHERAL, ENABLE);
+void initialize_shift_register() {
+	/* Enable the GPIO_Shift_Register Clock */
+	RCC_AHB1PeriphClockCmd(SHIFT_REGISTER_PERIPHERAL, ENABLE);
 
-//   /* Configure the GPIO_LED pin */
-//   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-//   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-//   GPIO_InitStructure.GPIO_Pin = SHIFT_REGISTER_DATA_PIN | SHIFT_REGISTER_CLOCK_PIN | SHIFT_REGISTER_RESET_PIN;
-//   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-//   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-//   GPIO_Init(SHIFT_REGISTER_PORT, &GPIO_InitStructure);
-// }
+	GPIO_InitTypeDef shift_init;
+
+	// Change to constants ! !
+	shift_init.GPIO_Pin = SHIFT_REGISTER_RESET_PIN | SHIFT_REGISTER_CLOCK_PIN | SHIFT_REGISTER_DATA_PIN;
+	shift_init.GPIO_Mode = GPIO_Mode_Out;
+	shift_init.GPIO_OType = GPIO_OType_PP;
+	shift_init.GPIO_PuPd = GPIO_PuPd_NOPULL; // Could change to pull down?
+	shift_init.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(SHIFT_REGISTER_PORT, &shift_init);
+}
 
 uint8_t get_nth_bit(uint32_t data, uint8_t n) {
 	return (data & ( 1 << n )) >> n;
