@@ -148,6 +148,7 @@ functionality.
 #include "../FreeRTOS_Source/include/timers.h"
 #include "shift_register.h"
 #include "adc.h"
+#include "led.h"
 
 
 /*-----------------------------------------------------------*/
@@ -435,14 +436,7 @@ static void prvSetupHardware( void )
 	RCC_AHB1PeriphClockCmd(RCC_AHB1_Periph_GPIOC, ENABLE); // enable port c clock
 
 	// Traffic Light GPIO Initialization
-	GPIO_InitTypeDef led_init;
-
-	// Change to constants ! !
-	led_init.GPIO_Pin = RED_LIGHT_PIN | AMBER_LIGHT_PIN | GREEN_LIGHT_PIN;
-	led_init.GPIO_Mode = GPIO_Mode_Out;
-	led_init.GPIO_OType = GPIO_OType_PP;
-	led_init.GPIO_PuPd = GPIO_PuPd_NOPULL; // Could change to pull down?
-	GPIO_Init(GPIOC, &led_init);	
+	initialize_led();
 
 	// Refactor to this hardware setup instead?
 	// Shift Register GPIO Initialization
