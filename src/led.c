@@ -16,7 +16,7 @@ void initialize_led() {
 
 	// Change to constants ! !
 	led_init.GPIO_Pin = RED_LIGHT_PIN | AMBER_LIGHT_PIN | GREEN_LIGHT_PIN;
-	led_init.GPIO_Mode = GPIO_Mode_Out;
+	led_init.GPIO_Mode = GPIO_Mode_OUT;
 	led_init.GPIO_OType = GPIO_OType_PP;
 	led_init.GPIO_PuPd = GPIO_PuPd_NOPULL; // Could change to pull down?
 	GPIO_Init(GPIOC, &led_init);	

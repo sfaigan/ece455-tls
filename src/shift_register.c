@@ -16,7 +16,7 @@ void initialize_shift_register() {
 
 	// Change to constants ! !
 	shift_init.GPIO_Pin = SHIFT_REGISTER_RESET_PIN | SHIFT_REGISTER_CLOCK_PIN | SHIFT_REGISTER_DATA_PIN;
-	shift_init.GPIO_Mode = GPIO_Mode_Out;
+	shift_init.GPIO_Mode = GPIO_Mode_OUT;
 	shift_init.GPIO_OType = GPIO_OType_PP;
 	shift_init.GPIO_PuPd = GPIO_PuPd_NOPULL; // Could change to pull down?
 	shift_init.GPIO_Speed = GPIO_Speed_50MHz;

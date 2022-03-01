@@ -19,9 +19,9 @@ void initialize_adc() {
  	ADC_1_GPIO.GPIO_Pin = POTENTIOMETER_PIN; // analog on pin 3
 	ADC_1_GPIO.GPIO_Mode = GPIO_Mode_AN;
 	ADC_1_GPIO.GPIO_PuPd = GPIO_PuPd_NOPULL;
-    GPIO_Init(ADC_PORT, &ADC_1_GPIO)
+    GPIO_Init(ADC_PORT, &ADC_1_GPIO);
 
-	RCC_APB2PeriphClockCmd(RCC_AHB2_Periph_ADC1, ENABLE); // enable adc clock
+	RCC_APB2PeriphClockCmd(ADC_CLOCK_PERIPHERAL, ENABLE); // enable adc clock
 
 	ADC_1.ADC_Resolution = ADC_Resolution_12b;	// 12bit
 	ADC_1.ADC_ScanConvMode = DISABLE;
@@ -30,7 +30,7 @@ void initialize_adc() {
 	ADC_1.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
 	ADC_1.ADC_DataAlign = ADC_DataAlign_Right;	// right align of ADC data
 	ADC_1.ADC_NbrOfConversion = 1;               // one conversion at a time
-	ADC_init(ADC1, &ADC_1);
+	ADC_Init(ADC1, &ADC_1);
 
     ADC_Cmd(ADC1, ENABLE);
     ADC_RegularChannelConfig(ADC1, ADC_Channel_11 , 1, ADC_SampleTime_84Cycles);

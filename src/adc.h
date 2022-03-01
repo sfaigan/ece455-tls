@@ -8,14 +8,13 @@
 #ifndef ADC_H_
 #define ADC_H_
 
-#include "stm32f4xx.h"
+#include "stm32f4xx_adc.h"
 
 
-#define SHIFT_REGISTER_DATA_PIN GPIO_Pin_6
-#define SHIFT_REGISTER_CLOCK_PIN GPIO_Pin_7
-#define SHIFT_REGISTER_RESET_PIN GPIO_Pin_8
+#define POTENTIOMETER_PIN GPIO_Pin_3
 
 #define ADC_PERIPHERAL RCC_AHB1Periph_GPIOC
+#define ADC_CLOCK_PERIPHERAL RCC_APB2Periph_ADC1
 #define ADC_PORT GPIOC
 
 void initialize_adc();

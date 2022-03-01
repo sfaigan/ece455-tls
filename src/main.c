@@ -169,8 +169,6 @@ functionality.
 #define AMBER_LIGHT_TIME 3000
 #define GREEN_LIGHT_TIME 10000
 
-#define POTENTIOMETER_PIN GPIO_Pin_3
-
 /*
  * TODO: Implement this function for any hardware specific clock configuration
  * that was not already performed before main() was called.
@@ -433,7 +431,7 @@ static void prvSetupHardware( void )
 	http://www.freertos.org/RTOS-Cortex-M3-M4.html */
 	NVIC_SetPriorityGrouping( 0 );
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1_Periph_GPIOC, ENABLE); // enable port c clock
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE); // enable port c clock
 
 	// Traffic Light GPIO Initialization
 	initialize_led();
