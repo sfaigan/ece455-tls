@@ -207,6 +207,16 @@ int main(void)
 	can be done here if it was not done before main() was called. */
 	prvSetupHardware();
 
+	uint16_t traffic_flow_rate = read_adc();
+	uint8_t new_car_gap = 5 - traffic_flow_rate / 788;
+	printf("ADC Reading: %d", traffic_flow_rate);
+	printf("Min number of cars: %d", new_car_gap);
+
+	traffic_flow_rate = read_adc();
+	new_car_gap = 5 - traffic_flow_rate / 788;
+	printf("ADC Reading: %d", traffic_flow_rate);
+	printf("Min number of cars: %d", new_car_gap);
+
 	// before traffic generator
 	uint32_t traffic = 0b00000000000000010101010101010101;
 

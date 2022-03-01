@@ -12,6 +12,7 @@ void initialize_adc() {
     // GPIO Clock
     RCC_AHB1PeriphClockCmd(ADC_PERIPHERAL, ENABLE);
 
+    // TODO: Change name of ADC_1
 	ADC_InitTypeDef ADC_1;
 	GPIO_InitTypeDef ADC_1_GPIO;
 
@@ -23,7 +24,8 @@ void initialize_adc() {
 
 	RCC_APB2PeriphClockCmd(ADC_CLOCK_PERIPHERAL, ENABLE); // enable adc clock
 
-	ADC_1.ADC_Resolution = ADC_Resolution_12b;	// 12bit
+	// TODO: Verify resolution is okay
+	ADC_1.ADC_Resolution = ADC_Resolution_12b;	// 12-bit
 	ADC_1.ADC_ScanConvMode = DISABLE;
 	ADC_1.ADC_ContinuousConvMode = ENABLE;
 	ADC_1.ADC_ExternalTrigConv = DISABLE;
@@ -33,5 +35,17 @@ void initialize_adc() {
 	ADC_Init(ADC1, &ADC_1);
 
     ADC_Cmd(ADC1, ENABLE);
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_11 , 1, ADC_SampleTime_84Cycles);
+    // TODO: Channel 11 vs channel 1
+    ADC_RegularChannelConfig(ADC1, ADC_Channel_13 , 1, ADC_SampleTime_3Cycles);
+}
+
+uint16_t read_adc() {
+	// Start conversion
+	ADC_SoftwareStartConv(ADC1);
+
+	// Wait for conversion to complete
+	while (!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC));
+
+	// Return potentiometer reading as value from 1-100
+	return ADC_GetConversionValue(ADC1);
 }

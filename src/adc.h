@@ -18,6 +18,7 @@
 #define ADC_PORT GPIOC
 
 void initialize_adc();
+uint16_t read_adc();
 
 
 #endif /* ADC_H_ */
