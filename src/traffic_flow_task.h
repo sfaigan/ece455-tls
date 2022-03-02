@@ -12,8 +12,10 @@
 #include "../FreeRTOS_Source/include/FreeRTOS.h"
 #include "../FreeRTOS_Source/include/task.h"
 #include "bits.h"
+#include "led.h"
 #include "queues.h"
+#include "shift_register.h"
 
-void vTrafficFlowTask();
+void vTrafficFlowTask(void *pvParameters);
 
 #endif /* TRAFFIC_FLOW_TASK_H_ */

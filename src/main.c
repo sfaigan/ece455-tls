@@ -168,34 +168,14 @@ static void prvSetupHardware( void );
 /*-----------------------------------------------------------*/
 
 int main(void) {
+	// Initial queue values
+	uint16_t trafficFlowRate = 0;
+	uint32_t traffic = 0;
+	uint8_t trafficLightState = RED_LIGHT;
+
 	/* Configure the system ready to run the demo.  The clock configuration
 	can be done here if it was not done before main() was called. */
 	prvSetupHardware();
-
-	/* Start testing code
-	uint16_t traffic_flow_rate = read_adc();
-	uint8_t new_car_gap = 5 - traffic_flow_rate / 788;
-	printf("ADC Reading: %d", traffic_flow_rate);
-	printf("Min number of cars: %d", new_car_gap);
-
-	traffic_flow_rate = read_adc();
-	new_car_gap = 5 - traffic_flow_rate / 788;
-	printf("ADC Reading: %d", traffic_flow_rate);
-	printf("Min number of cars: %d", new_car_gap);
-
-	// before traffic generator
-	uint32_t traffic = 0b00000000000000010101010101010101;
-
-	set_shift_register(traffic, LANE_CAPACITY);
-
-	// traffic generator adds new car
-	traffic |= 0b00000000000010000000000000000000;
-
-	// traffic flow task shifts cars
-	traffic >>= 1;
-
-	set_shift_register(traffic, LANE_CAPACITY);
-	End testing code */
 
 	// Create queues
 	xTrafficFlowRateQueueHandle = xQueueCreate(QUEUE_LENGTH, sizeof(uint16_t));
@@ -211,14 +191,27 @@ int main(void) {
 	xTaskCreate( vTrafficFlowRateTask, "vTrafficFlowRateTask", configMINIMAL_STACK_SIZE, NULL, 4, NULL);
 	xTaskCreate( vTrafficLightStateTask, "vTrafficLightStateTask", configMINIMAL_STACK_SIZE, NULL, 3, NULL);
 	xTaskCreate( vTrafficGeneratorTask, "vTrafficGeneratorTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
-//	xTaskCreate( vTrafficFlowTask, "vTrafficFlowTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+	xTaskCreate( vTrafficFlowTask, "vTrafficFlowTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+
+	// Set traffic flow rate to 0
+	if (xQueueSend(xTrafficFlowRateQueueHandle, &trafficFlowRate, QUEUE_OP_TIMEOUT)) {
+		printf("[Main] Initialized traffic flow rate to 0.\n");
+	} else {
+		printf("[Main] Failed to initialize traffic flow rate.\n");
+	}
 
 	// Set traffic to 0
-	uint32_t traffic = 0;
 	if (xQueueSend(xTrafficQueueHandle, &traffic, QUEUE_OP_TIMEOUT)) {
-		printf("[Traffic Generator Task] Initialized traffic to 0.\n");
+		printf("[Main] Initialized traffic to 0.\n");
 	} else {
-		printf("[Traffic Generator Task] Failed to initialize traffic.\n");
+		printf("[Main] Failed to initialize traffic flow rate.\n");
+	}
+
+	// Set traffic light state to RED_LIGHT
+	if (xQueueSend(xTrafficLightStateQueueHandle, &trafficLightState, QUEUE_OP_TIMEOUT)) {
+		printf("[Main] Initialized traffic light state to RED_LIGHT.\n");
+	} else {
+		printf("[Main] Failed to initialize traffic light state.\n");
 	}
 
 	/* Start the tasks and timer running. */
