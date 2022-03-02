@@ -45,6 +45,6 @@ void vTrafficGeneratorTask(void *pvParameters) {
 		} else {
 			printf("[Traffic Generator Task] Failed to received traffic flow rate from queue.\n");
 		}
-		vTaskDelay(0);
+		vTaskDelay(750);
 	}
 }

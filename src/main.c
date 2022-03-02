@@ -153,7 +153,7 @@ functionality.
 #include "traffic_flow_rate_task.h"
 #include "traffic_light_state_task.h"
 #include "traffic_generator_task.h"
-//#include "traffic_flow_task.h"
+#include "traffic_flow_task.h"
 #include "queues.h"
 /*-----------------------------------------------------------*/
 
@@ -179,8 +179,8 @@ int main(void) {
 
 	// Create queues
 	xTrafficFlowRateQueueHandle = xQueueCreate(QUEUE_LENGTH, sizeof(uint16_t));
-	xTrafficQueueHandle = xQueueCreate(QUEUE_LENGTH, sizeof(uint16_t));
-	xTrafficLightStateQueueHandle = xQueueCreate(QUEUE_LENGTH, sizeof(uint16_t));
+	xTrafficQueueHandle = xQueueCreate(QUEUE_LENGTH, sizeof(uint32_t));
+	xTrafficLightStateQueueHandle = xQueueCreate(QUEUE_LENGTH, sizeof(uint8_t));
 
 	// Add queues to the registry, for the benefit of kernel aware debugging
 	vQueueAddToRegistry( xTrafficFlowRateQueueHandle, "xTrafficFlowRateQueue" );

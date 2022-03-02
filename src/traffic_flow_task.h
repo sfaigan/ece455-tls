@@ -16,6 +16,8 @@
 #include "queues.h"
 #include "shift_register.h"
 
+#define LANE_CAPACITY 19
+
 void vTrafficFlowTask(void *pvParameters);
 
 #endif /* TRAFFIC_FLOW_TASK_H_ */

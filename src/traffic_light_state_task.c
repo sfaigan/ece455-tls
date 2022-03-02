@@ -32,7 +32,7 @@ void vTrafficLightStateTask(void *pvParameters) {
 						break;
 					case GREEN_LIGHT:
 						currentTrafficLightState = YELLOW_LIGHT;
-						trafficLightLength = BASE_LIGHT_LENGTH;
+						trafficLightLength = YELLOW_LIGHT_TIME;
 				}
 
 				trafficLightLength = pdMS_TO_TICKS(trafficLightLength);
