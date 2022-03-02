@@ -9,7 +9,7 @@
 #define SHIFT_REGISTER_H_
 
 #include "stm32f4xx.h"
-//#include "bits.c"
+#include "bits.h"
 
 #define SHIFT_REGISTER_DATA_PIN GPIO_Pin_6
 #define SHIFT_REGISTER_CLOCK_PIN GPIO_Pin_7

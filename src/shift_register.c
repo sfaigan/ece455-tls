@@ -23,9 +23,9 @@ void initialize_shift_register() {
 	GPIO_Init(SHIFT_REGISTER_PORT, &shift_init);
 }
 
-uint8_t get_nth_bit(uint32_t data, uint8_t n) {
-	return (data & ( 1 << n )) >> n;
-}
+//uint8_t get_nth_bit(uint32_t data, uint8_t n) {
+//	return (data & ( 1 << n )) >> n;
+//}
 
 void clear_shift_register() {
 	GPIO_ResetBits(SHIFT_REGISTER_PORT, SHIFT_REGISTER_RESET_PIN);

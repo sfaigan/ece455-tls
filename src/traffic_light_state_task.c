@@ -33,7 +33,7 @@ void vTrafficLightStateTask(void *pvParameters) {
 			}
 
 			trafficLightLength = pdMS_TO_TICKS(trafficLightLength);
-			vSwitchLED(currentTrafficLightState);
+			vEnableLED(currentTrafficLightState);
 
 			// Put the value back on the queue -_-
 			if (xQueueSend(xTrafficFlowRateQueueHandle, &trafficFlowRate, QUEUE_OP_TIMEOUT)) {

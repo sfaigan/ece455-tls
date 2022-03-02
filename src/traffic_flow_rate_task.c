@@ -25,6 +25,6 @@ void vTrafficFlowRateTask(void *pvParameters) {
 			printf("[Traffic Flow Rate Task] Failed to send traffic flow rate to queue.\n");
 		}
 
-		vTaskDelay(FLOW_RATE_TASK_PERIOD);
+		vTaskDelay(0);
 	}
 }

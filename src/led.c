@@ -14,7 +14,6 @@ void vInitializeLED() {
     
     GPIO_InitTypeDef led_init;
 
-	// Change to constants ! !
 	led_init.GPIO_Pin = RED_LIGHT_PIN | YELLOW_LIGHT_PIN | GREEN_LIGHT_PIN;
 	led_init.GPIO_Mode = GPIO_Mode_OUT;
 	led_init.GPIO_OType = GPIO_OType_PP;
@@ -31,9 +30,15 @@ void vEnableLED(uint8_t led) {
 	GPIO_ResetBits(LED_PORT, RED_LIGHT_PIN | YELLOW_LIGHT_PIN | GREEN_LIGHT_PIN);
 
 	switch(selected_led) {
-			case 0: GPIO_SetBits(LED_PORT, RED_LIGHT_PIN);
-			case 1:	GPIO_SetBits(LED_PORT, YELLOW_LIGHT_PIN);
-			case 2: GPIO_SetBits(LED_PORT, GREEN_LIGHT_PIN);
+		case RED_LIGHT:
+			GPIO_SetBits(LED_PORT, RED_LIGHT_PIN);
+			break;
+		case YELLOW_LIGHT:
+			GPIO_SetBits(LED_PORT, YELLOW_LIGHT_PIN);
+			break;
+		case GREEN_LIGHT:
+			GPIO_SetBits(LED_PORT, GREEN_LIGHT_PIN);
+			break;
 
 	}
 }

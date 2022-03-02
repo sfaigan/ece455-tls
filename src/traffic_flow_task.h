@@ -8,8 +8,12 @@
 #ifndef TRAFFIC_FLOW_TASK_H_
 #define TRAFFIC_FLOW_TASK_H_
 
+#include <stdio.h>
 #include "../FreeRTOS_Source/include/FreeRTOS.h"
+#include "../FreeRTOS_Source/include/task.h"
+#include "bits.h"
+#include "queues.h"
 
-void TrafficFlowTask();
+void vTrafficFlowTask();
 
 #endif /* TRAFFIC_FLOW_TASK_H_ */

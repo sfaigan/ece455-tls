@@ -15,10 +15,6 @@
 #include "led.h"
 #include "queues.h"
 
-#define RED_LIGHT 0
-#define YELLOW_LIGHT 1
-#define GREEN_LIGHT 2
-
 #define BASE_LIGHT_LENGTH 5000
 #define YELLOW_LIGHT_TIME 2000
 

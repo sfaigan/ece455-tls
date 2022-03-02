@@ -152,8 +152,8 @@ functionality.
 #include "led.h"
 #include "traffic_flow_rate_task.h"
 #include "traffic_light_state_task.h"
+#include "traffic_generator_task.h"
 //#include "traffic_flow_task.h"
-//#include "traffic_generator_task.h"
 #include "queues.h"
 /*-----------------------------------------------------------*/
 
@@ -203,15 +203,23 @@ int main(void) {
 	xTrafficLightStateQueueHandle = xQueueCreate(QUEUE_LENGTH, sizeof(uint16_t));
 
 	// Add queues to the registry, for the benefit of kernel aware debugging
-	vQueueAddToRegistry( xTrafficFlowRateQueueHandle, "TrafficFlowRateQueue" );
+	vQueueAddToRegistry( xTrafficFlowRateQueueHandle, "xTrafficFlowRateQueue" );
 	vQueueAddToRegistry( xTrafficQueueHandle, "xTrafficQueue" );
 	vQueueAddToRegistry( xTrafficLightStateQueueHandle, "xTrafficLightStateQueue" );
 
 	// Create Tasks
 	xTaskCreate( vTrafficFlowRateTask, "vTrafficFlowRateTask", configMINIMAL_STACK_SIZE, NULL, 4, NULL);
 	xTaskCreate( vTrafficLightStateTask, "vTrafficLightStateTask", configMINIMAL_STACK_SIZE, NULL, 3, NULL);
-//	xTaskCreate( vTrafficGeneratorTask, "vTrafficGeneratorTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
+	xTaskCreate( vTrafficGeneratorTask, "vTrafficGeneratorTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
 //	xTaskCreate( vTrafficFlowTask, "vTrafficFlowTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+
+	// Set traffic to 0
+	uint32_t traffic = 0;
+	if (xQueueSend(xTrafficQueueHandle, &traffic, QUEUE_OP_TIMEOUT)) {
+		printf("[Traffic Generator Task] Initialized traffic to 0.\n");
+	} else {
+		printf("[Traffic Generator Task] Failed to initialize traffic.\n");
+	}
 
 	/* Start the tasks and timer running. */
 	vTaskStartScheduler();
