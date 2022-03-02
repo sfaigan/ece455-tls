@@ -7,7 +7,7 @@
 
 #include "traffic_flow_rate_task.h"
 
-void vTrafficFlowRateTask(void *pvParameters)	{
+void vTrafficFlowRateTask(void *pvParameters) {
 	uint16_t adcValue = 0;
 
 	while(1) {

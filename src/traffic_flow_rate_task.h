@@ -17,6 +17,6 @@
 
 #define FLOW_RATE_TASK_PERIOD 200
 
-void vTrafficFlowRateTask();
+void vTrafficFlowRateTask(void *pvParameters);
 
 #endif /* TRAFFIC_FLOW_RATE_TASK_H_ */

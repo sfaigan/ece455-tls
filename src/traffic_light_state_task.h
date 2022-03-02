@@ -22,6 +22,6 @@
 #define BASE_LIGHT_LENGTH 5000
 #define YELLOW_LIGHT_TIME 2000
 
-void vTrafficLightStateTask();
+void vTrafficLightStateTask(void *pvParameters);
 
 #endif /* TRAFFIC_LIGHT_STATE_TASK_H_ */

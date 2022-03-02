@@ -219,63 +219,6 @@ int main(void) {
 	return 0;
 }
 
-/*
-static void Manager_Task( void *pvParameters )
-{
-	uint16_t tx_data = amber;
-
-
-	while(1)
-	{
-
-		if(tx_data == amber)
-			STM_EVAL_LEDOn(amber_led);
-		if(tx_data == green)
-			STM_EVAL_LEDOn(green_led);
-		if(tx_data == red)
-			STM_EVAL_LEDOn(red_led);
-		if(tx_data == blue)
-			STM_EVAL_LEDOn(blue_led);
-
-		if( xQueueSend(xQueue_handle,&tx_data,1000))
-		{
-			printf("Manager: %u ON!\n", tx_data);
-			if(++tx_data == 4)
-				tx_data = 0;
-			vTaskDelay(1000);
-		}
-		else
-		{
-			printf("Manager Failed!\n");
-		}
-	}
-}
-
-static void Blue_LED_Controller_Task( void *pvParameters )
-{
-	uint16_t rx_data;
-	while(1)
-	{
-		if(xQueueReceive(xQueue_handle, &rx_data, 500))
-		{
-			if(rx_data == blue)
-			{
-				vTaskDelay(250);
-				STM_EVAL_LEDOff(blue_led);
-				printf("Blue Off.\n");
-			}
-			else
-			{
-				if( xQueueSend(xQueue_handle,&rx_data,1000))
-					{
-						printf("BlueTask GRP (%u).\n", rx_data); // Got wwrong Package
-						vTaskDelay(500);
-					}
-			}
-		}
-	}
-}
-*/
 
 void vApplicationMallocFailedHook( void )
 {

@@ -7,6 +7,6 @@
 
 #include <stdint.h>
 
-//uint8_t get_nth_bit(uint32_t data, uint8_t n) {
-//	return (data & ( 1 << n )) >> n;
-//}
+uint8_t get_nth_bit(uint32_t data, uint8_t n) {
+	return (data & ( 1 << n )) >> n;
+}

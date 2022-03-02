@@ -7,7 +7,7 @@
 
 #include "traffic_light_state_task.h"
 
-void vTrafficLightStateTask() {
+void vTrafficLightStateTask(void *pvParameters) {
 	uint16_t trafficFlowRate;
 	uint16_t trafficLightLength = BASE_LIGHT_LENGTH;
 	uint8_t currentTrafficLightState = RED_LIGHT;

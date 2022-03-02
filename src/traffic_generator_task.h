@@ -10,6 +10,6 @@
 
 #include "../FreeRTOS_Source/include/FreeRTOS.h"
 
-void TrafficGeneratorTask();
+void TrafficGeneratorTask(void *pvParameters);
 
 #endif /* TRAFFIC_GENERATOR_TASK_H_ */

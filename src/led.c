@@ -23,7 +23,7 @@ void vInitializeLED() {
 }
 
 
-void vEnableLED(uint8_t led)	{
+void vEnableLED(uint8_t led) {
 	uint8_t selected_led = led % 3;
 
 	// Turn off all LEDs
