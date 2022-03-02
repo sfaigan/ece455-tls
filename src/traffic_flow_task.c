@@ -39,7 +39,7 @@ void vTrafficFlowTask(void *pvParameters) {
 					for (int i = 12; i <= LANE_CAPACITY; i++) {
 						// If space is full
 						if (get_nth_bit(preStopLineTrafficAndNewCar, i)) {
-							if (get_nth_bit(preStopLineTrafficAndNewCar, i-1)) {
+							if (get_nth_bit(newPreStopLineTraffic, i-1)) {
 								// If space to the right is full, don't move the car
 								newPreStopLineTraffic = set_nth_bit(newPreStopLineTraffic, i);
 							} else {
