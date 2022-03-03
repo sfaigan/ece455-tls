@@ -28,6 +28,6 @@ void vTrafficFlowRateTask(void *pvParameters) {
 		} else {
 			printf("[Traffic Flow Rate Task] Failed to receive traffic flow rate from queue.\n");
 		}
-		vTaskDelay(250);
+		vTaskDelay(500);
 	}
 }

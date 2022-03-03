@@ -188,9 +188,9 @@ int main(void) {
 	vQueueAddToRegistry( xTrafficLightStateQueueHandle, "xTrafficLightStateQueue" );
 
 	// Create Tasks
-	xTaskCreate( vTrafficFlowRateTask, "vTrafficFlowRateTask", configMINIMAL_STACK_SIZE, NULL, 4, NULL);
-	xTaskCreate( vTrafficLightStateTask, "vTrafficLightStateTask", configMINIMAL_STACK_SIZE, NULL, 3, NULL);
-	xTaskCreate( vTrafficGeneratorTask, "vTrafficGeneratorTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
+	xTaskCreate( vTrafficFlowRateTask, "vTrafficFlowRateTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+	xTaskCreate( vTrafficLightStateTask, "vTrafficLightStateTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+	xTaskCreate( vTrafficGeneratorTask, "vTrafficGeneratorTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
 	xTaskCreate( vTrafficFlowTask, "vTrafficFlowTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
 
 	// Set traffic flow rate to 0

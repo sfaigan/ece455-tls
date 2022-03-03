@@ -28,7 +28,7 @@ void vTrafficLightStateTask(void *pvParameters) {
 						break;
 					case YELLOW_LIGHT:
 						currentTrafficLightState = RED_LIGHT;
-						trafficLightLength = (1 + ((float) (trafficFlowRate / 3940))) * BASE_LIGHT_LENGTH;
+						trafficLightLength = (1 + (1 - (float) (trafficFlowRate / 3940))) * BASE_LIGHT_LENGTH;
 						break;
 					case GREEN_LIGHT:
 						currentTrafficLightState = YELLOW_LIGHT;
