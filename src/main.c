@@ -137,6 +137,7 @@ functionality.
 /* Standard includes. */
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "stm32f4_discovery.h"
 /* Kernel includes. */
 #include "stm32f4xx.h"
@@ -145,71 +146,73 @@ functionality.
 #include "../FreeRTOS_Source/include/semphr.h"
 #include "../FreeRTOS_Source/include/task.h"
 #include "../FreeRTOS_Source/include/timers.h"
-
-
-
+/* User includes. */
+#include "shift_register.h"
+#include "adc.h"
+#include "led.h"
+#include "traffic_flow_rate_task.h"
+#include "traffic_light_state_task.h"
+#include "traffic_generator_task.h"
+#include "traffic_flow_task.h"
+#include "queues.h"
 /*-----------------------------------------------------------*/
-#define mainQUEUE_LENGTH 100
 
-#define amber  	0
-#define green  	1
-#define red  	2
-#define blue  	3
+#define RED_LIGHT_PIN GPIO_Pin_0
+#define YELLOW_LIGHT_PIN GPIO_Pin_1
+#define GREEN_LIGHT_PIN GPIO_Pin_2
 
-#define amber_led	LED3
-#define green_led	LED4
-#define red_led		LED5
-#define blue_led	LED6
+#define LANE_CAPACITY 19
 
-
-/*
- * TODO: Implement this function for any hardware specific clock configuration
- * that was not already performed before main() was called.
- */
 static void prvSetupHardware( void );
 
-/*
- * The queue send and receive tasks as described in the comments at the top of
- * this file.
- */
-static void Manager_Task( void *pvParameters );
-static void Blue_LED_Controller_Task( void *pvParameters );
-static void Green_LED_Controller_Task( void *pvParameters );
-static void Red_LED_Controller_Task( void *pvParameters );
-static void Amber_LED_Controller_Task( void *pvParameters );
-
-xQueueHandle xQueue_handle = 0;
-
-
 /*-----------------------------------------------------------*/
 
-int main(void)
-{
-
-	/* Initialize LEDs */
-	STM_EVAL_LEDInit(amber_led);
-	STM_EVAL_LEDInit(green_led);
-	STM_EVAL_LEDInit(red_led);
-	STM_EVAL_LEDInit(blue_led);
+int main(void) {
+	// Initial queue values
+	uint16_t trafficFlowRate = 0;
+	uint32_t traffic = 0;
+	uint8_t trafficLightState = RED_LIGHT;
 
 	/* Configure the system ready to run the demo.  The clock configuration
 	can be done here if it was not done before main() was called. */
 	prvSetupHardware();
 
+	// Create queues
+	xTrafficFlowRateQueueHandle = xQueueCreate(QUEUE_LENGTH, sizeof(uint16_t));
+	xTrafficQueueHandle = xQueueCreate(QUEUE_LENGTH, sizeof(uint32_t));
+	xTrafficLightStateQueueHandle = xQueueCreate(QUEUE_LENGTH, sizeof(uint8_t));
 
-	/* Create the queue used by the queue send and queue receive tasks.
-	http://www.freertos.org/a00116.html */
-	xQueue_handle = xQueueCreate( 	mainQUEUE_LENGTH,		/* The number of items the queue can hold. */
-							sizeof( uint16_t ) );	/* The size of each item the queue holds. */
+	// Add queues to the registry, for the benefit of kernel aware debugging
+	vQueueAddToRegistry( xTrafficFlowRateQueueHandle, "xTrafficFlowRateQueue" );
+	vQueueAddToRegistry( xTrafficQueueHandle, "xTrafficQueue" );
+	vQueueAddToRegistry( xTrafficLightStateQueueHandle, "xTrafficLightStateQueue" );
 
-	/* Add to the registry, for the benefit of kernel aware debugging. */
-	vQueueAddToRegistry( xQueue_handle, "MainQueue" );
+	// Create Tasks
+	xTaskCreate( vTrafficFlowRateTask, "vTrafficFlowRateTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+	xTaskCreate( vTrafficLightStateTask, "vTrafficLightStateTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+	xTaskCreate( vTrafficGeneratorTask, "vTrafficGeneratorTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+	xTaskCreate( vTrafficFlowTask, "vTrafficFlowTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
 
-	xTaskCreate( Manager_Task, "Manager", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
-	xTaskCreate( Blue_LED_Controller_Task, "Blue_LED", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
-	xTaskCreate( Red_LED_Controller_Task, "Red_LED", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
-	xTaskCreate( Green_LED_Controller_Task, "Green_LED", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
-	xTaskCreate( Amber_LED_Controller_Task, "Amber_LED", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+	// Set traffic flow rate to 0
+	if (xQueueSend(xTrafficFlowRateQueueHandle, &trafficFlowRate, QUEUE_OP_TIMEOUT)) {
+		printf("[Main] Initialized traffic flow rate to 0.\n");
+	} else {
+		printf("[Main] Failed to initialize traffic flow rate.\n");
+	}
+
+	// Set traffic to 0
+	if (xQueueSend(xTrafficQueueHandle, &traffic, QUEUE_OP_TIMEOUT)) {
+		printf("[Main] Initialized traffic to 0.\n");
+	} else {
+		printf("[Main] Failed to initialize traffic flow rate.\n");
+	}
+
+	// Set traffic light state to RED_LIGHT
+	if (xQueueSend(xTrafficLightStateQueueHandle, &trafficLightState, QUEUE_OP_TIMEOUT)) {
+		printf("[Main] Initialized traffic light state to RED_LIGHT.\n");
+	} else {
+		printf("[Main] Failed to initialize traffic light state.\n");
+	}
 
 	/* Start the tasks and timer running. */
 	vTaskStartScheduler();
@@ -217,152 +220,6 @@ int main(void)
 	return 0;
 }
 
-
-/*-----------------------------------------------------------*/
-
-static void Manager_Task( void *pvParameters )
-{
-	uint16_t tx_data = amber;
-
-
-	while(1)
-	{
-
-		if(tx_data == amber)
-			STM_EVAL_LEDOn(amber_led);
-		if(tx_data == green)
-			STM_EVAL_LEDOn(green_led);
-		if(tx_data == red)
-			STM_EVAL_LEDOn(red_led);
-		if(tx_data == blue)
-			STM_EVAL_LEDOn(blue_led);
-
-		if( xQueueSend(xQueue_handle,&tx_data,1000))
-		{
-			printf("Manager: %u ON!\n", tx_data);
-			if(++tx_data == 4)
-				tx_data = 0;
-			vTaskDelay(1000);
-		}
-		else
-		{
-			printf("Manager Failed!\n");
-		}
-	}
-}
-
-/*-----------------------------------------------------------*/
-
-static void Blue_LED_Controller_Task( void *pvParameters )
-{
-	uint16_t rx_data;
-	while(1)
-	{
-		if(xQueueReceive(xQueue_handle, &rx_data, 500))
-		{
-			if(rx_data == blue)
-			{
-				vTaskDelay(250);
-				STM_EVAL_LEDOff(blue_led);
-				printf("Blue Off.\n");
-			}
-			else
-			{
-				if( xQueueSend(xQueue_handle,&rx_data,1000))
-					{
-						printf("BlueTask GRP (%u).\n", rx_data); // Got wwrong Package
-						vTaskDelay(500);
-					}
-			}
-		}
-	}
-}
-
-
-/*-----------------------------------------------------------*/
-
-static void Green_LED_Controller_Task( void *pvParameters )
-{
-	uint16_t rx_data;
-	while(1)
-	{
-		if(xQueueReceive(xQueue_handle, &rx_data, 500))
-		{
-			if(rx_data == green)
-			{
-				vTaskDelay(250);
-				STM_EVAL_LEDOff(green_led);
-				printf("Green Off.\n");
-			}
-			else
-			{
-				if( xQueueSend(xQueue_handle,&rx_data,1000))
-					{
-						printf("GreenTask GRP (%u).\n", rx_data); // Got wrong Package
-						vTaskDelay(500);
-					}
-			}
-		}
-	}
-}
-
-/*-----------------------------------------------------------*/
-
-static void Red_LED_Controller_Task( void *pvParameters )
-{
-	uint16_t rx_data;
-	while(1)
-	{
-		if(xQueueReceive(xQueue_handle, &rx_data, 500))
-		{
-			if(rx_data == red)
-			{
-				vTaskDelay(250);
-				STM_EVAL_LEDOff(red_led);
-				printf("Red off.\n");
-			}
-			else
-			{
-				if( xQueueSend(xQueue_handle,&rx_data,1000))
-					{
-						printf("RedTask GRP (%u).\n", rx_data); // Got wrong Package
-						vTaskDelay(500);
-					}
-			}
-		}
-	}
-}
-
-
-/*-----------------------------------------------------------*/
-
-static void Amber_LED_Controller_Task( void *pvParameters )
-{
-	uint16_t rx_data;
-	while(1)
-	{
-		if(xQueueReceive(xQueue_handle, &rx_data, 500))
-		{
-			if(rx_data == amber)
-			{
-				vTaskDelay(250);
-				STM_EVAL_LEDOff(amber_led);
-				printf("Amber Off.\n");
-			}
-			else
-			{
-				if( xQueueSend(xQueue_handle,&rx_data,1000))
-					{
-						printf("AmberTask GRP (%u).\n", rx_data); // Got wrong Package
-						vTaskDelay(500);
-					}
-			}
-		}
-	}
-}
-
-
-/*-----------------------------------------------------------*/
 
 void vApplicationMallocFailedHook( void )
 {
@@ -414,13 +271,20 @@ volatile size_t xFreeStackSpace;
 }
 /*-----------------------------------------------------------*/
 
-static void prvSetupHardware( void )
-{
+static void prvSetupHardware(void) {
 	/* Ensure all priority bits are assigned as preemption priority bits.
 	http://www.freertos.org/RTOS-Cortex-M3-M4.html */
 	NVIC_SetPriorityGrouping( 0 );
 
-	/* TODO: Setup the clocks, etc. here, if they were not configured before
-	main() was called. */
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE); // enable port c clock
+
+	// Traffic Light GPIO Initialization
+	vInitializeLED();
+
+	// Shift Register GPIO Initialization
+	initialize_shift_register();
+
+	// ADC Initialization
+	initialize_adc();
 }
 
