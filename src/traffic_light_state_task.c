@@ -2,60 +2,74 @@
  * traffic_light_state_task.c
  *
  *  Created on: Mar 1, 2022
- *      Author: sfaigan
+ *      Author: Shea and Darian
  */
 
 #include "traffic_light_state_task.h"
 
-void vTrafficLightStateTask(void *pvParameters) {
-	uint16_t trafficFlowRate;
-	uint16_t trafficLightLength = BASE_LIGHT_LENGTH;
-	uint8_t currentTrafficLightState;
+void vTrafficLightStateTask( void *pvParameters ) {
+	uint16_t usTrafficFlowRate;
+	uint16_t usTrafficLightLength = BASE_LIGHT_TIME;
+	uint8_t ucCurrentTrafficLightState;
 
-	while (1) {
-		// Get traffic flow rate value from queue and store it locally
-		if (xQueueReceive(xTrafficFlowRateQueueHandle, &trafficFlowRate, QUEUE_OP_TIMEOUT)) {
+	while ( 1 ) {
+		/* Get traffic flow rate value from queue and store it locally */
+		if ( xQueueReceive( xTrafficFlowRateQueueHandle, &usTrafficFlowRate, QUEUE_OP_TIMEOUT ) )
+		{
 			printf("[Traffic Light State Task] Received traffic flow rate from queue.\n");
 
-			if (xQueueReceive(xTrafficLightStateQueueHandle, &currentTrafficLightState, QUEUE_OP_TIMEOUT)) {
+			if ( xQueueReceive( xTrafficLightStateQueueHandle, &ucCurrentTrafficLightState, QUEUE_OP_TIMEOUT ) )
+			{
 				printf("[Traffic Light State Task] Received traffic light state from queue.\n");
 
-				// Set light
-				switch (currentTrafficLightState) {
+				/* Set light */
+				switch ( ucCurrentTrafficLightState )
+				{
 					case RED_LIGHT:
-						currentTrafficLightState = GREEN_LIGHT;
-						trafficLightLength = (1 + ((float) (trafficFlowRate / 3940))) * BASE_LIGHT_LENGTH;
+						ucCurrentTrafficLightState = GREEN_LIGHT;
+						usTrafficLightLength = (1 + ((float) (usTrafficFlowRate / 3940))) * BASE_LIGHT_TIME;
 						break;
 					case YELLOW_LIGHT:
-						currentTrafficLightState = RED_LIGHT;
-						trafficLightLength = (1 + (1 - (float) (trafficFlowRate / 3940))) * BASE_LIGHT_LENGTH;
+						ucCurrentTrafficLightState = RED_LIGHT;
+						usTrafficLightLength = MAX_LIGHT_TIME - (((float) (usTrafficFlowRate / 3940)) * BASE_LIGHT_TIME);
 						break;
 					case GREEN_LIGHT:
-						currentTrafficLightState = YELLOW_LIGHT;
-						trafficLightLength = YELLOW_LIGHT_TIME;
+						ucCurrentTrafficLightState = YELLOW_LIGHT;
+						usTrafficLightLength = YELLOW_LIGHT_TIME;
 				}
 
-				trafficLightLength = pdMS_TO_TICKS(trafficLightLength);
-				vEnableLED(currentTrafficLightState);
+				usTrafficLightLength = pdMS_TO_TICKS( usTrafficLightLength );
+				vEnableLED( ucCurrentTrafficLightState );
 
-				if (xQueueSend(xTrafficLightStateQueueHandle, &currentTrafficLightState, QUEUE_OP_TIMEOUT)) {
+				if ( xQueueSend( xTrafficLightStateQueueHandle, &ucCurrentTrafficLightState, QUEUE_OP_TIMEOUT ) )
+				{
 					printf("[Traffic Light State Task] Sent traffic light state to queue.\n");
-				} else {
+				}
+				else
+				{
 					printf("[Traffic Light State Task] Failed to send traffic light state to queue.\n");
 				}
-			} else {
+			}
+			else
+			{
 				printf("[Traffic Light State Task] Failed to receive traffic light state to queue.\n");
 			}
 
-			// Put the value back on the queue -_-
-			if (xQueueSend(xTrafficFlowRateQueueHandle, &trafficFlowRate, QUEUE_OP_TIMEOUT)) {
+			/* Put the value back on the queue */
+			if ( xQueueSend( xTrafficFlowRateQueueHandle, &usTrafficFlowRate, QUEUE_OP_TIMEOUT ) )
+			{
 				printf("[Traffic Light State Task] Sent traffic flow rate to queue.\n");
-			} else {
+			}
+			else
+			{
 				printf("[Traffic Light State Task] Failed to send traffic flow rate to queue.\n");
 			}
-		} else {
+		}
+		else
+		{
 			printf("[Traffic Light State Task] Failed to receive traffic flow rate from queue.\n");
 		}
-		vTaskDelay(trafficLightLength);
+
+		vTaskDelay( usTrafficLightLength );
 	}
 }

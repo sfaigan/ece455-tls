@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "stdint.h": "c",
+    "traffic_flow_rate_task.h": "c"
+  }
+}

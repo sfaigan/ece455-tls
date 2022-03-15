@@ -7,33 +7,43 @@
 
 #include <stdint.h>
 
-uint8_t get_nth_bit(uint32_t data, uint8_t n) {
-	return (data & ( 1 << n )) >> n;
+/* Returns the Nth bit from a 32-bit unsigned integer */
+uint8_t ucGetNthBit( uint32_t ulData, uint8_t ucN )
+{
+    return (ulData & ( 1 << ucN )) >> ucN;
 }
 
-uint32_t set_nth_bit(uint32_t data, uint8_t n) {
-	return data | (1U << n);
-	// return traffic |= 0b00000000000010000000000000000000;
+/* Sets the Nth bit of a 32-bit unsigned integer */
+uint32_t ulSetNthBit( uint32_t ulData, uint8_t ucN )
+{
+    return ulData | (1U << ucN);
 }
 
-uint8_t are_n_bits_free(uint32_t data, uint8_t start, uint8_t n) {
-	for (int i = start; i > start-n; i--) {
-		if (get_nth_bit(data, i)) {
-			return 0;
-		}
-	}
-	return 1;
-}
-
-// [first, last]
-uint32_t get_bits_in_range(uint32_t data, uint8_t first, uint8_t last) {
-	uint32_t n_bits = 0;
-	uint8_t bit;
-	for (int i = first; i <= last; i++) {
-        bit = get_nth_bit(data, i);
-        if (bit) {
-            n_bits = set_nth_bit(n_bits, i);
+/* Returns whether the leftmost N bits are free in a 32-bit unsigned integer */
+uint8_t ucAreNBitsFree( uint32_t ulData, uint8_t ucStart, uint8_t ucN )
+{
+    for (int counter = ucStart; counter > ucStart-ucN; counter--)
+    {
+        if (ucGetNthBit(ulData, counter))
+        {
+            return 0;
         }
-	}
-	return n_bits;
+    }
+    return 1;
+}
+
+/* Returns the bits in range [ucFirst, ucLast] from an unsigned 32-bit integer */
+uint32_t ulGetBitsInRange( uint32_t ulData, uint8_t ucFirst, uint8_t ucLast )
+{
+    uint32_t ulNBits = 0;
+    uint8_t ucBit;
+    for (uint8_t ucCounter = ucFirst; ucCounter <= ucLast; ucCounter++)
+    {
+        ucBit = ucGetNthBit(ulData, ucCounter);
+        if (ucBit)
+        {
+            ulNBits = ulSetNthBit(ulNBits, ucCounter);
+        }
+    }
+    return ulNBits;
 }

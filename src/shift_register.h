@@ -8,9 +8,11 @@
 #ifndef SHIFT_REGISTER_H_
 #define SHIFT_REGISTER_H_
 
+/* Includes */
 #include "stm32f4xx.h"
 #include "bits.h"
 
+/* Macros */
 #define SHIFT_REGISTER_DATA_PIN GPIO_Pin_6
 #define SHIFT_REGISTER_CLOCK_PIN GPIO_Pin_7
 #define SHIFT_REGISTER_RESET_PIN GPIO_Pin_8
@@ -18,7 +20,8 @@
 #define SHIFT_REGISTER_PERIPHERAL RCC_AHB1Periph_GPIOC
 #define SHIFT_REGISTER_PORT GPIOC
 
-void initialize_shift_register();
-void set_shift_register(uint32_t data, uint8_t n);
+/* Function declarations */
+void vInitializeShiftRegister();
+void vSetShiftRegister( uint32_t ulData, uint8_t ucN );
 
 #endif /* SHIFT_REGISTER_H_ */
