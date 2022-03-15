@@ -2,15 +2,16 @@
  * bits.h
  *
  *  Created on: Mar 2, 2022
- *      Author: sfaigan
+ *      Author: Shea and Darian
  */
 
 #ifndef BITS_H_
 #define BITS_H_
 
-uint8_t get_nth_bit(uint32_t data, uint8_t n);
-uint32_t set_nth_bit(uint32_t data, uint8_t n);
-uint8_t are_n_bits_free(uint32_t data, uint8_t start, uint8_t n);
-uint32_t get_bits_in_range(uint32_t data, uint8_t first, uint8_t last);
+/* Function declarations */
+uint8_t ucGetNthBit( uint32_t ulData, uint8_t ucN );
+uint32_t ulSetNthBit( uint32_t ulData, uint8_t ucN );
+uint8_t ucAreNBitsFree( uint32_t ulData, uint8_t ucStart, uint8_t ucN );
+uint32_t ulGetBitsInRange( uint32_t ulData, uint8_t ucFirst, uint8_t ucLast );
 
 #endif /* BITS_H_ */

@@ -157,134 +157,149 @@ functionality.
 #include "queues.h"
 /*-----------------------------------------------------------*/
 
+/* Macros */
 #define RED_LIGHT_PIN GPIO_Pin_0
 #define YELLOW_LIGHT_PIN GPIO_Pin_1
 #define GREEN_LIGHT_PIN GPIO_Pin_2
 
 #define LANE_CAPACITY 19
 
+/* Private function declarations */
 static void prvSetupHardware( void );
 
 /*-----------------------------------------------------------*/
 
-int main(void) {
-	// Initial queue values
-	uint16_t trafficFlowRate = 0;
-	uint32_t traffic = 0;
-	uint8_t trafficLightState = RED_LIGHT;
+int main( void )
+{
+    /* Initial queue values */
+    uint16_t usTrafficFlowRate = 0;
+    uint32_t ulTraffic = 0;
+    uint8_t ucTrafficLightState = RED_LIGHT;
 
-	/* Configure the system ready to run the demo.  The clock configuration
-	can be done here if it was not done before main() was called. */
-	prvSetupHardware();
+    /* Configure the system ready to run the demo.  The clock configuration
+    can be done here if it was not done before main() was called. */
+    prvSetupHardware();
 
-	// Create queues
-	xTrafficFlowRateQueueHandle = xQueueCreate(QUEUE_LENGTH, sizeof(uint16_t));
-	xTrafficQueueHandle = xQueueCreate(QUEUE_LENGTH, sizeof(uint32_t));
-	xTrafficLightStateQueueHandle = xQueueCreate(QUEUE_LENGTH, sizeof(uint8_t));
+    /* Create queues */
+    xTrafficFlowRateQueueHandle = xQueueCreate( QUEUE_LENGTH, sizeof( uint16_t ) );
+    xTrafficQueueHandle = xQueueCreate( QUEUE_LENGTH, sizeof( uint32_t ) );
+    xTrafficLightStateQueueHandle = xQueueCreate( QUEUE_LENGTH, sizeof( uint8_t ) );
 
-	// Add queues to the registry, for the benefit of kernel aware debugging
-	vQueueAddToRegistry( xTrafficFlowRateQueueHandle, "xTrafficFlowRateQueue" );
-	vQueueAddToRegistry( xTrafficQueueHandle, "xTrafficQueue" );
-	vQueueAddToRegistry( xTrafficLightStateQueueHandle, "xTrafficLightStateQueue" );
+    /* Add queues to the registry, for the benefit of kernel aware debugging */
+    vQueueAddToRegistry( xTrafficFlowRateQueueHandle, "xTrafficFlowRateQueue" );
+    vQueueAddToRegistry( xTrafficQueueHandle, "xTrafficQueue" );
+    vQueueAddToRegistry( xTrafficLightStateQueueHandle, "xTrafficLightStateQueue" );
 
-	// Create Tasks
-	xTaskCreate( vTrafficFlowRateTask, "vTrafficFlowRateTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
-	xTaskCreate( vTrafficLightStateTask, "vTrafficLightStateTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
-	xTaskCreate( vTrafficGeneratorTask, "vTrafficGeneratorTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
-	xTaskCreate( vTrafficFlowTask, "vTrafficFlowTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+    /* Create Tasks */
+    xTaskCreate( vTrafficFlowRateTask, "vTrafficFlowRateTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
+    xTaskCreate( vTrafficLightStateTask, "vTrafficLightStateTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
+    xTaskCreate( vTrafficGeneratorTask, "vTrafficGeneratorTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
+    xTaskCreate( vTrafficFlowTask, "vTrafficFlowTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
 
-	// Set traffic flow rate to 0
-	if (xQueueSend(xTrafficFlowRateQueueHandle, &trafficFlowRate, QUEUE_OP_TIMEOUT)) {
-		printf("[Main] Initialized traffic flow rate to 0.\n");
-	} else {
-		printf("[Main] Failed to initialize traffic flow rate.\n");
-	}
+    /* Set traffic flow rate to 0 */
+    if ( xQueueSend( xTrafficFlowRateQueueHandle, &usTrafficFlowRate, QUEUE_OP_TIMEOUT ) )
+    {
+        printf("[Main] Initialized traffic flow rate to 0.\n");
+    }
+    else
+    {
+        printf("[Main] Failed to initialize traffic flow rate.\n");
+    }
 
-	// Set traffic to 0
-	if (xQueueSend(xTrafficQueueHandle, &traffic, QUEUE_OP_TIMEOUT)) {
-		printf("[Main] Initialized traffic to 0.\n");
-	} else {
-		printf("[Main] Failed to initialize traffic flow rate.\n");
-	}
+    /* Set traffic to 0 */
+    if ( xQueueSend( xTrafficQueueHandle, &ulTraffic, QUEUE_OP_TIMEOUT ) )
+    {
+        printf("[Main] Initialized traffic to 0.\n");
+    }
+    else
+    {
+        printf("[Main] Failed to initialize traffic flow rate.\n");
+    }
 
-	// Set traffic light state to RED_LIGHT
-	if (xQueueSend(xTrafficLightStateQueueHandle, &trafficLightState, QUEUE_OP_TIMEOUT)) {
-		printf("[Main] Initialized traffic light state to RED_LIGHT.\n");
-	} else {
-		printf("[Main] Failed to initialize traffic light state.\n");
-	}
+    /* Set traffic light state to RED_LIGHT */
+    if ( xQueueSend( xTrafficLightStateQueueHandle, &ucTrafficLightState, QUEUE_OP_TIMEOUT ) )
+    {
+        printf("[Main] Initialized traffic light state to RED_LIGHT.\n");
+    } 
+    else
+    {
+        printf("[Main] Failed to initialize traffic light state.\n");
+    }
 
-	/* Start the tasks and timer running. */
-	vTaskStartScheduler();
+    /* Start the tasks and timer running. */
+    vTaskStartScheduler();
 
-	return 0;
+    return 0;
 }
 
 
 void vApplicationMallocFailedHook( void )
 {
-	/* The malloc failed hook is enabled by setting
-	configUSE_MALLOC_FAILED_HOOK to 1 in FreeRTOSConfig.h.
+    /* The malloc failed hook is enabled by setting
+    configUSE_MALLOC_FAILED_HOOK to 1 in FreeRTOSConfig.h.
 
-	Called if a call to pvPortMalloc() fails because there is insufficient
-	free memory available in the FreeRTOS heap.  pvPortMalloc() is called
-	internally by FreeRTOS API functions that create tasks, queues, software 
-	timers, and semaphores.  The size of the FreeRTOS heap is set by the
-	configTOTAL_HEAP_SIZE configuration constant in FreeRTOSConfig.h. */
-	for( ;; );
+    Called if a call to pvPortMalloc() fails because there is insufficient
+    free memory available in the FreeRTOS heap.  pvPortMalloc() is called
+    internally by FreeRTOS API functions that create tasks, queues, software 
+    timers, and semaphores.  The size of the FreeRTOS heap is set by the
+    configTOTAL_HEAP_SIZE configuration constant in FreeRTOSConfig.h. */
+    for( ;; );
 }
 /*-----------------------------------------------------------*/
 
 void vApplicationStackOverflowHook( xTaskHandle pxTask, signed char *pcTaskName )
 {
-	( void ) pcTaskName;
-	( void ) pxTask;
+    ( void ) pcTaskName;
+    ( void ) pxTask;
 
-	/* Run time stack overflow checking is performed if
-	configconfigCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2.  This hook
-	function is called if a stack overflow is detected.  pxCurrentTCB can be
-	inspected in the debugger if the task name passed into this function is
-	corrupt. */
-	for( ;; );
+    /* Run time stack overflow checking is performed if
+    configconfigCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2.  This hook
+    function is called if a stack overflow is detected.  pxCurrentTCB can be
+    inspected in the debugger if the task name passed into this function is
+    corrupt. */
+    for( ;; );
 }
 /*-----------------------------------------------------------*/
 
 void vApplicationIdleHook( void )
 {
-volatile size_t xFreeStackSpace;
+    volatile size_t xFreeStackSpace;
 
-	/* The idle task hook is enabled by setting configUSE_IDLE_HOOK to 1 in
-	FreeRTOSConfig.h.
+    /* The idle task hook is enabled by setting configUSE_IDLE_HOOK to 1 in
+    FreeRTOSConfig.h.
 
-	This function is called on each cycle of the idle task.  In this case it
-	does nothing useful, other than report the amount of FreeRTOS heap that
-	remains unallocated. */
-	xFreeStackSpace = xPortGetFreeHeapSize();
+    This function is called on each cycle of the idle task.  In this case it
+    does nothing useful, other than report the amount of FreeRTOS heap that
+    remains unallocated. */
+    xFreeStackSpace = xPortGetFreeHeapSize();
 
-	if( xFreeStackSpace > 100 )
-	{
-		/* By now, the kernel has allocated everything it is going to, so
-		if there is a lot of heap remaining unallocated then
-		the value of configTOTAL_HEAP_SIZE in FreeRTOSConfig.h can be
-		reduced accordingly. */
-	}
+    if( xFreeStackSpace > 100 )
+    {
+        /* By now, the kernel has allocated everything it is going to, so
+        if there is a lot of heap remaining unallocated then
+        the value of configTOTAL_HEAP_SIZE in FreeRTOSConfig.h can be
+        reduced accordingly. */
+    }
 }
 /*-----------------------------------------------------------*/
 
-static void prvSetupHardware(void) {
-	/* Ensure all priority bits are assigned as preemption priority bits.
-	http://www.freertos.org/RTOS-Cortex-M3-M4.html */
-	NVIC_SetPriorityGrouping( 0 );
+/* Set up the hardware layer of the system */
+static void prvSetupHardware( void )
+{
+    /* Ensure all priority bits are assigned as preemption priority bits.
+    http://www.freertos.org/RTOS-Cortex-M3-M4.html */
+    NVIC_SetPriorityGrouping( 0 );
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE); // enable port c clock
+    /* Enable port C clock */
+    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOC, ENABLE );
 
-	// Traffic Light GPIO Initialization
-	vInitializeLED();
+    /* Traffic Light GPIO Initialization */
+    vInitializeLED();
 
-	// Shift Register GPIO Initialization
-	initialize_shift_register();
+    /* Shift Register GPIO Initialization */
+    vInitializeShiftRegister();
 
-	// ADC Initialization
-	initialize_adc();
+    /* ADC Initialization */
+    vInitializeADC();
 }
 

@@ -7,38 +7,40 @@
 
 #include "led.h"
 
-
-void vInitializeLED() {
-    // GPIO Clock
+/* Initialize the traffic light LEDs */
+void vInitializeLED()
+{
+    /* Enable LED clock */
     RCC_AHB1PeriphClockCmd(LED_PERIPHERAL, ENABLE);
     
-    GPIO_InitTypeDef led_init;
-
-	led_init.GPIO_Pin = RED_LIGHT_PIN | YELLOW_LIGHT_PIN | GREEN_LIGHT_PIN;
-	led_init.GPIO_Mode = GPIO_Mode_OUT;
-	led_init.GPIO_OType = GPIO_OType_PP;
-	led_init.GPIO_PuPd = GPIO_PuPd_NOPULL; // Could change to pull down?
-	GPIO_Init(GPIOC, &led_init);	
+    /* Configure LEDs */
+    GPIO_InitTypeDef xLEDInit;
+    xLEDInit.GPIO_Pin = RED_LIGHT_PIN | YELLOW_LIGHT_PIN | GREEN_LIGHT_PIN;
+    xLEDInit.GPIO_Mode = GPIO_Mode_OUT;
+    xLEDInit.GPIO_OType = GPIO_OType_PP;
+    xLEDInit.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    GPIO_Init(GPIOC, &xLEDInit);    
 }
 
+/* Enable the given traffic light LED */
+void vEnableLED( uint8_t ucLED )
+{
+    uint8_t ucSelectedLED = ucLED % 3;
 
-void vEnableLED(uint8_t led) {
-	uint8_t selected_led = led % 3;
+    /* Disable all LEDs */
+    GPIO_ResetBits(LED_PORT, RED_LIGHT_PIN | YELLOW_LIGHT_PIN | GREEN_LIGHT_PIN);
 
-	// Turn off all LEDs
-	// TODO: Fix this
-	GPIO_ResetBits(LED_PORT, RED_LIGHT_PIN | YELLOW_LIGHT_PIN | GREEN_LIGHT_PIN);
-
-	switch(selected_led) {
-		case RED_LIGHT:
-			GPIO_SetBits(LED_PORT, RED_LIGHT_PIN);
-			break;
-		case YELLOW_LIGHT:
-			GPIO_SetBits(LED_PORT, YELLOW_LIGHT_PIN);
-			break;
-		case GREEN_LIGHT:
-			GPIO_SetBits(LED_PORT, GREEN_LIGHT_PIN);
-			break;
-
-	}
+    /* Enable the given LED */
+    switch(ucSelectedLED)
+    {
+        case RED_LIGHT:
+            GPIO_SetBits(LED_PORT, RED_LIGHT_PIN);
+            break;
+        case YELLOW_LIGHT:
+            GPIO_SetBits(LED_PORT, YELLOW_LIGHT_PIN);
+            break;
+        case GREEN_LIGHT:
+            GPIO_SetBits(LED_PORT, GREEN_LIGHT_PIN);
+            break;
+    }
 }
