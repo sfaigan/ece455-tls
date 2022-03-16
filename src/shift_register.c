@@ -33,12 +33,12 @@ void vClearShiftRegister()
 /* Sets the shift register to the first N bits of ulData */
 void vSetShiftRegister( uint32_t ulData, uint8_t ucN )
 {
-    uint8_t bit, i;
+    uint8_t ucBit, ucCounter;
     vClearShiftRegister();
-    for (i = 0; i < n; i++) {
-        bit = ucGetNthBit(data, i);
+    for (ucCounter = 0; ucCounter < ucN; ucCounter++) {
+    	ucBit = ucGetNthBit(ulData, ucCounter);
         GPIO_ResetBits(SHIFT_REGISTER_PORT, SHIFT_REGISTER_DATA_PIN);
-        if (bit == 1) {
+        if (ucBit == 1) {
             GPIO_SetBits(SHIFT_REGISTER_PORT, SHIFT_REGISTER_DATA_PIN);
         }
         GPIO_SetBits(SHIFT_REGISTER_PORT, SHIFT_REGISTER_CLOCK_PIN);
